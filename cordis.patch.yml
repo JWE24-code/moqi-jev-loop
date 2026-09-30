@@ -1,0 +1,30 @@
+# The dsh-jev-loop bundle patch: mount the Jev gates over dsh-base.
+#
+# The API key is read from the environment (TYPESAFE_API_KEY, or
+# TYPESAFE_APIKEY) and is never written here. `preExecuteMode`/`postExecuteMode`
+# start at `log`, so every judgment is recorded in
+# `$DSH_HOME/jev-loop.jsonl` without blocking; switch a mode to `ask`/`deny`
+# (pre-execute) or `block` (post-execute) to enforce.
+#
+# The four gates can also be toggled at runtime from moqi's `/JevLoop` panel;
+# those toggles persist to `$DSH_HOME/jev-loop.json` and override the
+# `*Enabled` values below.
+
+- insert:
+    - id: jev-loop
+      name: 'dsh-jev-loop'
+      config:
+        model: jev-latest
+        preStepEnabled: false
+        preStepThreshold: 0.7
+        preExecuteEnabled: true
+        preExecuteMode: log
+        preExecuteThreshold: 0.7
+        preExecuteSkip: []
+        postExecuteEnabled: true
+        postExecuteMode: log
+        postExecuteThreshold: 0.7
+        turnStoppingEnabled: true
+        turnStoppingThreshold: 0.5
+        turnStoppingMaxSteers: 2
+        turnStoppingMaxMessages: 14
