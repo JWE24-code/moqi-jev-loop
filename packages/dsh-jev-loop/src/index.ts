@@ -18,7 +18,7 @@
  *
  * Each gate can be toggled at runtime through the `jevLoop` service this
  * plugin provides; moqi's `/JevLoop` panel is one consumer. The toggle state
- * persists to `$DSH_HOME/moqi-jev-loop.json`.
+ * persists to `$DSH_HOME/jev-loop.json`.
  * @module
  */
 
@@ -38,7 +38,7 @@ import { JevClient, type Answer, type JevClientStats, type Question } from './je
 import { lastUserRequest, renderContent, renderMessages } from './render.ts'
 
 /** Stable Cordis plugin name. */
-export const name = 'moqi-jev-loop'
+export const name = 'dsh-jev-loop'
 
 /** No services are required: the gates are pure event listeners. */
 export const inject: string[] = []
@@ -58,7 +58,12 @@ export interface GateState {
   mode: string
 }
 
-/** The control surface the plugin provides to the host TUI. */
+/**
+ * The control surface this plugin provides to any host.
+ *
+ * `moqi-jev-loop` consumes it to render `/JevLoop`; nothing here depends on
+ * that host, so the core package mounts headless and unchanged.
+ */
 export interface JevLoopService {
   gates(): GateState[]
   toggle(name: GateName): GateState | undefined
@@ -66,50 +71,12 @@ export interface JevLoopService {
   stats(): JevClientStats
   /** Whether a key is resolvable right now (config, credential store, or env). */
   hasApiKey(): boolean
-  /** Where the live key came from, for the panel — never the value. */
+  /** Where the live key came from, for a control surface — never the value. */
   keySource(): string
   /** Store a key in the Harness credential store and start using it at once. */
   setApiKey(value: string): Promise<{ ok: boolean; error?: string }>
   /** Forget the stored key and stop judging until another is set. */
   clearApiKey(): Promise<{ ok: boolean; error?: string }>
-}
-
-/**
- * The slice of moqi's `tuiHost` seam this plugin contributes to.
- *
- * Structural on purpose: the plugin stays buildable and loadable without moqi,
- * and registers its panel only when the service is actually present.
- */
-interface TuiPanelRow {
-  id: string
-  title: string
-  subtitle: string
-  active?: boolean
-}
-
-/** A masked prompt the host raises on the panel's behalf. */
-interface TuiPanelSecret {
-  kind: 'secret'
-  message: string
-  placeholder?: string
-  submit: (value: string) => void | Promise<void>
-}
-
-/** What activating a panel row produced. */
-type TuiPanelResult = void | TuiPanelSecret
-
-/** A command panel contributed to the host. */
-interface TuiPanel {
-  name: string
-  title?: string
-  description: string
-  rows(): TuiPanelRow[]
-  activate(id: string): TuiPanelResult | Promise<TuiPanelResult>
-}
-
-/** The host service, when moqi is mounted. */
-interface TuiHostLike {
-  registerPanel(panel: TuiPanel): (() => void) | undefined
 }
 
 /** Plugin config, resolved from the bundle patch or a profile layer. */
@@ -130,9 +97,9 @@ export interface Config {
   maxStateChars?: number
   /** In-memory cache entries, keyed by the exact request body. Default 500. */
   cacheEntries?: number
-  /** JSONL audit trail of every judgment. Default `$DSH_HOME/moqi-jev-loop.jsonl`. */
+  /** JSONL audit trail of every judgment. Default `$DSH_HOME/jev-loop.jsonl`. */
   auditPath?: string
-  /** Where the runtime gate toggles persist. Default `$DSH_HOME/moqi-jev-loop.json`. */
+  /** Where the runtime gate toggles persist. Default `$DSH_HOME/jev-loop.json`. */
   statePath?: string
   /** Judge the request before the first step. Default false. */
   preStepEnabled?: boolean
@@ -335,8 +302,8 @@ function resolveSettings(config: Config): Settings {
     maxRetries: config.maxRetries ?? 2,
     maxStateChars: config.maxStateChars ?? 24000,
     cacheEntries: config.cacheEntries ?? 500,
-    auditPath: config.auditPath ?? join(dshHome, 'moqi-jev-loop.jsonl'),
-    statePath: config.statePath ?? join(dshHome, 'moqi-jev-loop.json'),
+    auditPath: config.auditPath ?? join(dshHome, 'jev-loop.jsonl'),
+    statePath: config.statePath ?? join(dshHome, 'jev-loop.json'),
     preStepThreshold: config.preStepThreshold ?? 0.7,
     preExecuteMode,
     preExecuteThreshold: config.preExecuteThreshold ?? 0.7,
@@ -569,7 +536,7 @@ export function apply(ctx: Context, config: Config): void {
       if (found === undefined) return undefined
       found.enabled = !found.enabled
       saveOverrides(settings.statePath, gates)
-      ctx.logger.info(`[moqi-jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`)
+      ctx.logger.info(`[dsh-jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`)
       return { ...found }
     },
     setEnabled: (gate, enabled) => {
@@ -632,7 +599,7 @@ export function apply(ctx: Context, config: Config): void {
   void ensureClient().then((active) => {
     if (active === undefined) {
       ctx.logger.warn(
-        '[moqi-jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY',
+        '[dsh-jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY',
       )
     }
   })
@@ -726,7 +693,7 @@ export function apply(ctx: Context, config: Config): void {
     const reason = `Jev flagged this call (${flagged
       .map((hazard) => `${hazard.name}=${hazard.p.toFixed(2)}`)
       .join(', ')})`
-    ctx.logger.warn(`[moqi-jev-loop] ${reason}: ${exec.name}`)
+    ctx.logger.warn(`[dsh-jev-loop] ${reason}: ${exec.name}`)
     return settings.preExecuteMode === 'deny'
       ? { kind: 'deny', reason }
       : { kind: 'ask', reason }
@@ -776,7 +743,7 @@ export function apply(ctx: Context, config: Config): void {
     })
     if (!block || probability === undefined) return next()
     ctx.logger.warn(
-      `[moqi-jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`,
+      `[dsh-jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`,
     )
     return {
       kind: 'block',
@@ -825,7 +792,7 @@ export function apply(ctx: Context, config: Config): void {
         }),
       )
       ctx.logger.warn(
-        `[moqi-jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`,
+        `[dsh-jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`,
       )
     }
 
@@ -842,79 +809,21 @@ export function apply(ctx: Context, config: Config): void {
     })
   })
 
-  // Contribute the control panel to moqi when this profile mounts it. The
-  // injection is optional: without `tuiHost` (a headless or non-moqi profile)
-  // the gates above run exactly the same, just with no panel.
-  const injectable = ctx as unknown as {
-    inject(deps: string[], callback: (ctx: Context) => void): unknown
-  }
   // The credential store may be provided after this plugin mounts, so resolve
   // again once it exists — and let a stored key win over a bare env fallback
   // that was the best answer a moment ago.
+  const injectable = ctx as unknown as {
+    inject(deps: string[], callback: (ctx: Context) => void): unknown
+  }
   injectable.inject(['credentials'], () => {
     if (client === undefined || keyStatus.source.startsWith('env:')) {
       client = undefined
       void ensureClient()
     }
   })
-  injectable.inject(['tuiHost'], (uiCtx) => {
-    const host = uiCtx.get('tuiHost') as TuiHostLike | undefined
-    if (host === undefined) return
-    host.registerPanel({
-      name: 'JevLoop',
-      title: 'Jev Loop',
-      description: 'Jev gates and API key (moqi-jev-loop)',
-      rows: (): TuiPanelRow[] => {
-        const key: TuiPanelRow = {
-          id: 'key',
-          title: 'API key',
-          subtitle: service.hasApiKey()
-            ? `set · ${service.keySource()} · enter to replace`
-            : 'not set · enter to paste the TypeSafe key',
-          active: service.hasApiKey(),
-        }
-        const gates: TuiPanelRow[] = service.gates().map((gate) => ({
-          id: gate.name,
-          title: gate.label,
-          subtitle: `${gate.enabled ? 'on' : 'off'} · ${gate.mode} · ${gate.description}`,
-          active: gate.enabled,
-        }))
-        const clear: TuiPanelRow[] = service.hasApiKey()
-          ? [
-              {
-                id: 'key-clear',
-                title: 'Clear API key',
-                subtitle: 'remove the stored key',
-                active: false,
-              },
-            ]
-          : []
-        return [key, ...clear, ...gates]
-      },
-      activate: async (id): Promise<TuiPanelResult> => {
-        if (id === 'key') {
-          return {
-            kind: 'secret',
-            message: 'Paste the TypeSafe API key — stored in the Harness credential store',
-            placeholder: 'TYPESAFE_APIKEY',
-            submit: async (value: string) => {
-              const result = await service.setApiKey(value)
-              if (!result.ok) throw new Error(result.error ?? 'could not save the key')
-            },
-          }
-        }
-        if (id === 'key-clear') {
-          await service.clearApiKey()
-          return undefined
-        }
-        service.toggle(id as GateName)
-        return undefined
-      },
-    })
-  })
 
   ctx.logger.info(
-    `[moqi-jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
+    `[dsh-jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
       .filter((gate) => gate.enabled)
       .map((gate) => gate.name)
       .join(',') || 'none'})`,

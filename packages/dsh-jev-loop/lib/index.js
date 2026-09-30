@@ -18,7 +18,7 @@
  *
  * Each gate can be toggled at runtime through the `jevLoop` service this
  * plugin provides; moqi's `/JevLoop` panel is one consumer. The toggle state
- * persists to `$DSH_HOME/moqi-jev-loop.json`.
+ * persists to `$DSH_HOME/jev-loop.json`.
  * @module
  */
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -30,7 +30,7 @@ import z from '@deepseek-ai/schemastery';
 import { JevClient } from "./jev.js";
 import { lastUserRequest, renderContent, renderMessages } from "./render.js";
 /** Stable Cordis plugin name. */
-export const name = 'moqi-jev-loop';
+export const name = 'dsh-jev-loop';
 /** No services are required: the gates are pure event listeners. */
 export const inject = [];
 /** The service key moqi looks up to render `/JevLoop`. */
@@ -163,8 +163,8 @@ function resolveSettings(config) {
         maxRetries: config.maxRetries ?? 2,
         maxStateChars: config.maxStateChars ?? 24000,
         cacheEntries: config.cacheEntries ?? 500,
-        auditPath: config.auditPath ?? join(dshHome, 'moqi-jev-loop.jsonl'),
-        statePath: config.statePath ?? join(dshHome, 'moqi-jev-loop.json'),
+        auditPath: config.auditPath ?? join(dshHome, 'jev-loop.jsonl'),
+        statePath: config.statePath ?? join(dshHome, 'jev-loop.json'),
         preStepThreshold: config.preStepThreshold ?? 0.7,
         preExecuteMode,
         preExecuteThreshold: config.preExecuteThreshold ?? 0.7,
@@ -374,7 +374,7 @@ export function apply(ctx, config) {
                 return undefined;
             found.enabled = !found.enabled;
             saveOverrides(settings.statePath, gates);
-            ctx.logger.info(`[moqi-jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`);
+            ctx.logger.info(`[dsh-jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`);
             return { ...found };
         },
         setEnabled: (gate, enabled) => {
@@ -439,7 +439,7 @@ export function apply(ctx, config) {
     // stored key is live from the first gate.
     void ensureClient().then((active) => {
         if (active === undefined) {
-            ctx.logger.warn('[moqi-jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY');
+            ctx.logger.warn('[dsh-jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY');
         }
     });
     // A turn is nudged at most `turnStoppingMaxSteers` times, even across steps.
@@ -528,7 +528,7 @@ export function apply(ctx, config) {
         const reason = `Jev flagged this call (${flagged
             .map((hazard) => `${hazard.name}=${hazard.p.toFixed(2)}`)
             .join(', ')})`;
-        ctx.logger.warn(`[moqi-jev-loop] ${reason}: ${exec.name}`);
+        ctx.logger.warn(`[dsh-jev-loop] ${reason}: ${exec.name}`);
         return settings.preExecuteMode === 'deny'
             ? { kind: 'deny', reason }
             : { kind: 'ask', reason };
@@ -577,7 +577,7 @@ export function apply(ctx, config) {
         });
         if (!block || probability === undefined)
             return next();
-        ctx.logger.warn(`[moqi-jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`);
+        ctx.logger.warn(`[dsh-jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`);
         return {
             kind: 'block',
             feedback: [{ type: 'text', text: resultFeedback(probability) }],
@@ -616,7 +616,7 @@ export function apply(ctx, config) {
                 content: [{ type: 'text', text: unfinishedNudge(probability) }],
                 source: PLUGIN_SOURCE,
             }));
-            ctx.logger.warn(`[moqi-jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`);
+            ctx.logger.warn(`[dsh-jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`);
         }
         audit(settings.auditPath, {
             gate: 'agent/turn-stopping',
@@ -630,77 +630,17 @@ export function apply(ctx, config) {
             usage: result.usage,
         });
     });
-    // Contribute the control panel to moqi when this profile mounts it. The
-    // injection is optional: without `tuiHost` (a headless or non-moqi profile)
-    // the gates above run exactly the same, just with no panel.
-    const injectable = ctx;
     // The credential store may be provided after this plugin mounts, so resolve
     // again once it exists — and let a stored key win over a bare env fallback
     // that was the best answer a moment ago.
+    const injectable = ctx;
     injectable.inject(['credentials'], () => {
         if (client === undefined || keyStatus.source.startsWith('env:')) {
             client = undefined;
             void ensureClient();
         }
     });
-    injectable.inject(['tuiHost'], (uiCtx) => {
-        const host = uiCtx.get('tuiHost');
-        if (host === undefined)
-            return;
-        host.registerPanel({
-            name: 'JevLoop',
-            title: 'Jev Loop',
-            description: 'Jev gates and API key (moqi-jev-loop)',
-            rows: () => {
-                const key = {
-                    id: 'key',
-                    title: 'API key',
-                    subtitle: service.hasApiKey()
-                        ? `set · ${service.keySource()} · enter to replace`
-                        : 'not set · enter to paste the TypeSafe key',
-                    active: service.hasApiKey(),
-                };
-                const gates = service.gates().map((gate) => ({
-                    id: gate.name,
-                    title: gate.label,
-                    subtitle: `${gate.enabled ? 'on' : 'off'} · ${gate.mode} · ${gate.description}`,
-                    active: gate.enabled,
-                }));
-                const clear = service.hasApiKey()
-                    ? [
-                        {
-                            id: 'key-clear',
-                            title: 'Clear API key',
-                            subtitle: 'remove the stored key',
-                            active: false,
-                        },
-                    ]
-                    : [];
-                return [key, ...clear, ...gates];
-            },
-            activate: async (id) => {
-                if (id === 'key') {
-                    return {
-                        kind: 'secret',
-                        message: 'Paste the TypeSafe API key — stored in the Harness credential store',
-                        placeholder: 'TYPESAFE_APIKEY',
-                        submit: async (value) => {
-                            const result = await service.setApiKey(value);
-                            if (!result.ok)
-                                throw new Error(result.error ?? 'could not save the key');
-                        },
-                    };
-                }
-                if (id === 'key-clear') {
-                    await service.clearApiKey();
-                    return undefined;
-                }
-                service.toggle(id);
-                return undefined;
-            },
-        });
-    });
-    ctx.logger.info(`[moqi-jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
+    ctx.logger.info(`[dsh-jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
         .filter((gate) => gate.enabled)
         .map((gate) => gate.name)
         .join(',') || 'none'})`);

@@ -2,43 +2,16 @@
   "name": "moqi-jev-loop",
   "version": "0.1.0",
   "private": true,
-  "description": "Jev (TypeSafe System One) gates and a /JevLoop control panel for the DeepSeek Harness agent loop, shipped as a moqi plugin.",
+  "description": "Jev (TypeSafe System One) gates for the DeepSeek Harness agent loop, and the /JevLoop control panel that moqi renders for them.",
   "type": "module",
-  "license": "MIT",
-  "main": "lib/index.js",
-  "types": "lib/types/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./lib/types/index.d.ts",
-      "default": "./lib/index.js"
-    },
-    "./cordis.patch.yml": "./cordis.patch.yml",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "lib/**/*.js",
-    "lib/types/**/*.d.ts",
-    "cordis.patch.yml"
+  "workspaces": [
+    "packages/*"
   ],
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  },
   "scripts": {
     "link-harness": "node scripts/link-harness.mjs",
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
     "install-profile": "node scripts/install-profile.mjs"
-  },
-  "peerDependencies": {
-    "@deepseek-ai/cordis": "*",
-    "@deepseek-ai/dsh-agent": "*",
-    "@deepseek-ai/dsh-credentials": "*",
-    "@deepseek-ai/dsh-llm": "*",
-    "@deepseek-ai/dsh-session": "*",
-    "@deepseek-ai/dsh-tools": "*",
-    "@deepseek-ai/schemastery": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

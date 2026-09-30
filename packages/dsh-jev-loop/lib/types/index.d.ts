@@ -18,14 +18,14 @@
  *
  * Each gate can be toggled at runtime through the `jevLoop` service this
  * plugin provides; moqi's `/JevLoop` panel is one consumer. The toggle state
- * persists to `$DSH_HOME/moqi-jev-loop.json`.
+ * persists to `$DSH_HOME/jev-loop.json`.
  * @module
  */
 import type { Context } from '@deepseek-ai/cordis';
 import z from '@deepseek-ai/schemastery';
 import { type JevClientStats } from './jev.ts';
 /** Stable Cordis plugin name. */
-export declare const name = "moqi-jev-loop";
+export declare const name = "dsh-jev-loop";
 /** No services are required: the gates are pure event listeners. */
 export declare const inject: string[];
 /** The service key moqi looks up to render `/JevLoop`. */
@@ -40,7 +40,12 @@ export interface GateState {
     enabled: boolean;
     mode: string;
 }
-/** The control surface the plugin provides to the host TUI. */
+/**
+ * The control surface this plugin provides to any host.
+ *
+ * `moqi-jev-loop` consumes it to render `/JevLoop`; nothing here depends on
+ * that host, so the core package mounts headless and unchanged.
+ */
 export interface JevLoopService {
     gates(): GateState[];
     toggle(name: GateName): GateState | undefined;
@@ -48,7 +53,7 @@ export interface JevLoopService {
     stats(): JevClientStats;
     /** Whether a key is resolvable right now (config, credential store, or env). */
     hasApiKey(): boolean;
-    /** Where the live key came from, for the panel — never the value. */
+    /** Where the live key came from, for a control surface — never the value. */
     keySource(): string;
     /** Store a key in the Harness credential store and start using it at once. */
     setApiKey(value: string): Promise<{
@@ -79,9 +84,9 @@ export interface Config {
     maxStateChars?: number;
     /** In-memory cache entries, keyed by the exact request body. Default 500. */
     cacheEntries?: number;
-    /** JSONL audit trail of every judgment. Default `$DSH_HOME/moqi-jev-loop.jsonl`. */
+    /** JSONL audit trail of every judgment. Default `$DSH_HOME/jev-loop.jsonl`. */
     auditPath?: string;
-    /** Where the runtime gate toggles persist. Default `$DSH_HOME/moqi-jev-loop.json`. */
+    /** Where the runtime gate toggles persist. Default `$DSH_HOME/jev-loop.json`. */
     statePath?: string;
     /** Judge the request before the first step. Default false. */
     preStepEnabled?: boolean;

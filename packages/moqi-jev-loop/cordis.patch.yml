@@ -1,0 +1,11 @@
+# The moqi-jev-loop bundle patch: add the /JevLoop panel over dsh-jev-loop.
+#
+# This bundle renders the control panel only. The gates and the API key belong
+# to dsh-jev-loop, whose `jevLoop` service this adapter reads; compose both
+# bundles (or list only this one in a moqi profile and mount the core alongside
+# it) and the panel appears in moqi's command palette. With no moqi host the
+# adapter simply never applies.
+
+- insert:
+    - id: jev-loop-panel
+      name: 'moqi-jev-loop'

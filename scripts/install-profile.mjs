@@ -1,14 +1,13 @@
 /**
- * Create (or refresh) a throwaway Harness profile for testing this plugin.
+ * Create (or refresh) a throwaway Harness profile for the moqi build.
  *
- * The profile composes `@deepseek-ai/dsh-base`, the fixed moqi TUI checkout
- * (the Enter=submit / Shift+Enter=newline build), and this plugin — so the
- * loop improvement is exercised through the real terminal surface.
+ * The profile composes dsh-base, the moqi TUI checkout, the core
+ * `dsh-jev-loop` bundle, and the `moqi-jev-loop` panel adapter — so the gates
+ * and the `/JevLoop` panel run behind the real terminal.
  *
  *   node scripts/install-profile.mjs [profileName]   # default: jev-dev
  *
- * `MOQI_ROOT` overrides where the TUI checkout lives (default: the sibling
- * `../moqi` directory).
+ * `MOQI_ROOT` overrides where the TUI checkout lives (default: sibling ../moqi).
  */
 
 import { execFileSync } from 'node:child_process'
@@ -25,12 +24,16 @@ if (profileName === '' || profileName.includes('/') || profileName.includes('\\'
 
 const repoRoot = resolve(import.meta.dirname, '..')
 const moqiRoot = resolve(process.env['MOQI_ROOT'] ?? join(repoRoot, '..', 'moqi'))
-const pluginName = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).name
-const moqiName = 'moqi-tui'
+const coreDir = join(repoRoot, 'packages', 'dsh-jev-loop')
+const panelDir = join(repoRoot, 'packages', 'moqi-jev-loop')
+const coreName = JSON.parse(readFileSync(join(coreDir, 'package.json'), 'utf8')).name
+const panelName = JSON.parse(readFileSync(join(panelDir, 'package.json'), 'utf8')).name
 
-if (!existsSync(join(repoRoot, 'lib', 'index.js'))) {
-  console.error('install-profile: lib/ is missing — run `npm run build` first.')
-  process.exit(1)
+for (const [label, dir] of [['core', coreDir], ['panel', panelDir]]) {
+  if (!existsSync(join(dir, 'lib', 'index.js'))) {
+    console.error(`install-profile: ${label} lib/ is missing — run \`npm run build\` first.`)
+    process.exit(1)
+  }
 }
 if (!existsSync(join(moqiRoot, 'lib', 'index.js'))) {
   console.error(`install-profile: no built moqi at ${moqiRoot} — run npm run build there first.`)
@@ -50,13 +53,13 @@ const manifest = {
   name: `dsh-profile-${profileName}`,
   private: true,
   dependencies: {
-    // Absolute, so the profile keeps resolving wherever this checkout lives.
-    [moqiName]: `link:${moqiRoot}`,
-    [pluginName]: `link:${repoRoot}`,
+    'moqi-tui': `link:${moqiRoot}`,
+    [coreName]: `link:${coreDir}`,
+    [panelName]: `link:${panelDir}`,
   },
   dsh: {
     profile: {
-      bundles: ['@deepseek-ai/dsh-base', moqiName, pluginName],
+      bundles: ['@deepseek-ai/dsh-base', 'moqi-tui', coreName, panelName],
       patchReload: 'startup',
     },
   },
@@ -93,8 +96,8 @@ try {
   process.exit(1)
 }
 
-// Both linked checkouts resolve `@deepseek-ai/*` from their own directory, so
-// the harness's copies are symlinked into each.
+// The linked checkouts resolve `@deepseek-ai/*` from their own directory. The
+// repo root covers both packages (Node walks up); moqi has its own.
 const dshRoot = findDshRoot()
 if (dshRoot === undefined) {
   console.warn('install-profile: no `dsh` installation found to link harness packages from.')
