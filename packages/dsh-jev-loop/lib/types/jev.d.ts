@@ -87,10 +87,20 @@ export interface JevClientStats {
     inputTokens: number;
     outputTokens: number;
 }
+/**
+ * The judging surface the loop depends on.
+ *
+ * A port, so tests supply an in-memory judger and production supplies
+ * {@link JevClient}; everything above it is transport-agnostic.
+ */
+export interface Judger {
+    systemOne(state: string, questions: Record<string, Question>, caller?: AbortSignal): Promise<JevResult | undefined>;
+    stats(): JevClientStats;
+}
 /** A cached, capped, retrying caller of the TypeSafe evaluation endpoint. */
-export declare class JevClient {
-    private readonly options;
+export declare class JevClient implements Judger {
     private readonly cache;
+    private readonly options;
     private calls;
     private cacheHits;
     private inputTokens;

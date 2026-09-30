@@ -19,8 +19,8 @@ function backoff(attempt) {
 }
 /** A cached, capped, retrying caller of the TypeSafe evaluation endpoint. */
 export class JevClient {
-    options;
     cache = new Map();
+    options;
     calls = 0;
     cacheHits = 0;
     inputTokens = 0;

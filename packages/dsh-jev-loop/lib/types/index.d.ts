@@ -1,71 +1,34 @@
 /**
- * Jev in the agent loop.
+ * Jev in the agent loop: the Cordis adapter.
+ *
+ * This file only knows how the Harness names things. The judgments, the key
+ * lifecycle, and the gate bookkeeping live in `gates.ts`, `keyring.ts`, and
+ * `loop.ts`; the handlers below translate one harness event into one
+ * {@link JevLoop} call and one harness decision back.
  *
  * Four gates, all automatic — the model never asks for them:
  *
  * - `agent/pre-step` judges the request before the first step and can inject a
  *   clarifying-question instruction.
- * - `tools/pre-execute` judges a tool call before it runs (destructive,
- *   exfiltration, off-task) and can allow, ask, or deny.
+ * - `tools/pre-execute` judges a tool call before it runs and can allow, ask,
+ *   or deny.
  * - `tools/post-execute` judges a successful result and can block it with
  *   corrective feedback.
- * - `agent/turn-stopping` judges the turn before it closes and, when the
- *   request looks unfinished, steers a nudge so the loop keeps working.
- *
- * Jev supplies the judgment; this plugin owns the thresholds, the decisions,
- * and the cost envelope. Every failure fails open: a judgment service that is
- * down must not take the agent loop with it.
- *
- * Each gate can be toggled at runtime through the `jevLoop` service this
- * plugin provides; moqi's `/JevLoop` panel is one consumer. The toggle state
- * persists to `$DSH_HOME/jev-loop.json`.
+ * - `agent/turn-stopping` judges the turn before it closes and can steer a
+ *   nudge so the loop keeps working.
  * @module
  */
 import type { Context } from '@deepseek-ai/cordis';
 import z from '@deepseek-ai/schemastery';
-import { type JevClientStats } from './jev.ts';
+export type { GateName, GateState, PostExecuteMode, PreExecuteMode } from './gates.ts';
+export type { JevLoopService } from './loop.ts';
+export type { KeyStatus } from './keyring.ts';
 /** Stable Cordis plugin name. */
 export declare const name = "dsh-jev-loop";
-/** No services are required: the gates are pure event listeners. */
+/** No services are required: the gates are event listeners over an injected key. */
 export declare const inject: string[];
-/** The service key moqi looks up to render `/JevLoop`. */
+/** The service key a host looks up to render the control panel. */
 export declare const JEV_LOOP_SERVICE = "jevLoop";
-/** The gates this plugin can run. */
-export type GateName = 'preStep' | 'preExecute' | 'postExecute' | 'turnStopping';
-/** One gate as the control surface sees it. */
-export interface GateState {
-    name: GateName;
-    label: string;
-    description: string;
-    enabled: boolean;
-    mode: string;
-}
-/**
- * The control surface this plugin provides to any host.
- *
- * `moqi-jev-loop` consumes it to render `/JevLoop`; nothing here depends on
- * that host, so the core package mounts headless and unchanged.
- */
-export interface JevLoopService {
-    gates(): GateState[];
-    toggle(name: GateName): GateState | undefined;
-    setEnabled(name: GateName, enabled: boolean): GateState | undefined;
-    stats(): JevClientStats;
-    /** Whether a key is resolvable right now (config, credential store, or env). */
-    hasApiKey(): boolean;
-    /** Where the live key came from, for a control surface — never the value. */
-    keySource(): string;
-    /** Store a key in the Harness credential store and start using it at once. */
-    setApiKey(value: string): Promise<{
-        ok: boolean;
-        error?: string;
-    }>;
-    /** Forget the stored key and stop judging until another is set. */
-    clearApiKey(): Promise<{
-        ok: boolean;
-        error?: string;
-    }>;
-}
 /** Plugin config, resolved from the bundle patch or a profile layer. */
 export interface Config {
     /** Literal key; prefer `apiKeyEnv` so no secret lives in a config file. */

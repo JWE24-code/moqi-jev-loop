@@ -1,16 +1,14 @@
 /**
- * The `/JevLoop` control panel for moqi.
+ * The `/JevLoop` panel for moqi.
  *
- * A thin adapter over `dsh-jev-loop`: it renders the core's gates and API key
- * through moqi's `tuiHost` panel seam and judges nothing itself. It lives in
- * its own package so the core can be released to the plain Harness with no UI
- * dependency at all.
- *
- * Both services are injected, so the adapter simply never applies where the
- * core is absent or moqi is not the host.
+ * A thin adapter: moqi brings the host seam, `dsh-jev-loop` brings the
+ * `jevLoop` service, and `panel.ts` turns that service into rows and actions.
+ * Both services are injected, so the adapter never applies where either is
+ * absent.
  * @module
  */
 import type { Context } from '@deepseek-ai/cordis';
+export type { GateState, JevLoopService, TuiPanelResult, TuiPanelRow, TuiPanelSecret, } from './panel.ts';
 /** Stable Cordis plugin name. */
 export declare const name = "moqi-jev-loop";
 /** The core's control service and moqi's host seam, both required. */

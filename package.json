@@ -11,7 +11,8 @@
     "link-harness": "node scripts/link-harness.mjs",
     "build": "npm run build --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "install-profile": "node scripts/install-profile.mjs"
+    "install-profile": "node scripts/install-profile.mjs",
+    "test": "npm run test --workspaces"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

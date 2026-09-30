@@ -115,10 +115,27 @@ bundles: ['@deepseek-ai/dsh-base', 'dsh-jev-loop']
 ## Layout
 
 ```
-packages/dsh-jev-loop/    core: gates, TypeSafe client, jevLoop service, audit
-  src/index.ts            config, the four gates, runtime service
-  src/jev.ts              retry, cache, state cap
+packages/dsh-jev-loop/    core: the feature, with no host dependency
+  src/gates.ts            the four judgments and their copy, as pure functions
+  src/keyring.ts          key resolution order, storing, probing, clearing
+  src/loop.ts             JevLoop: state assembly, per-turn budgets, audit, one method per gate
+  src/jev.ts              the TypeSafe client: a Judger port and its live adapter
   src/render.ts           derived session messages -> plain text
+  src/index.ts            the Cordis adapter: config, event wiring, effects
+  tests/                  the modules above, driven directly
 packages/moqi-jev-loop/   adapter: the /JevLoop panel
+  src/panel.ts            rows and actions over the core's service
+  src/index.ts            the tuiHost seam
 scripts/                  harness linking and the throwaway profile installer
 ```
+
+## Tests
+
+```bash
+npm test   # gates, keyring, loop, panel — no Harness, no network
+```
+
+The domain modules take their dependencies as ports (a `Judger`, a credential
+store, a `Keyring`), so the tests drive the same interfaces production uses and
+never need Cordis or TypeSafe. The Cordis and moqi files are the only ones that
+must cross a real seam, and they stay thin.

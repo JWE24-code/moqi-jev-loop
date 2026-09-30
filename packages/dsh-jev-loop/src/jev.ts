@@ -109,15 +109,33 @@ function backoff(attempt: number): number {
   return Math.min(250 * 2 ** attempt, 2000)
 }
 
+/**
+ * The judging surface the loop depends on.
+ *
+ * A port, so tests supply an in-memory judger and production supplies
+ * {@link JevClient}; everything above it is transport-agnostic.
+ */
+export interface Judger {
+  systemOne(
+    state: string,
+    questions: Record<string, Question>,
+    caller?: AbortSignal,
+  ): Promise<JevResult | undefined>
+  stats(): JevClientStats
+}
+
 /** A cached, capped, retrying caller of the TypeSafe evaluation endpoint. */
-export class JevClient {
+export class JevClient implements Judger {
   private readonly cache = new Map<string, JevResponse>()
+  private readonly options: JevClientOptions
   private calls = 0
   private cacheHits = 0
   private inputTokens = 0
   private outputTokens = 0
 
-  constructor(private readonly options: JevClientOptions) {}
+  constructor(options: JevClientOptions) {
+    this.options = options
+  }
 
   /** Cumulative counters since the plugin loaded. */
   stats(): JevClientStats {
