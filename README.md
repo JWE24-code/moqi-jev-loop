@@ -18,20 +18,23 @@ JSON — **fails open**, so a judgment service that is down never blocks the loo
 
 ## Controlling it from moqi
 
-The plugin provides a `jevLoop` Cordis service. With moqi mounted (the
-`jev-dev` profile below), **`/jevloop`** opens a panel listing the API key and
-the four gates with their live state; `enter` toggles a gate, the change
-applies immediately, and it persists to `$DSH_HOME/jev-loop.json`.
-`/jevloop <gate> on|off` is the scriptable form — gate names are `preStep`,
-`preExecute`, `postExecute`, `turnStopping`.
+## The `/JevLoop` panel
+
+The panel ships with the plugin: on a moqi host the plugin registers it through
+`ctx.tuiHost.registerPanel` (an optional injection, so the gates still run
+headless), and `/JevLoop` joins the command palette with the plugin. Nothing
+about the panel lives in moqi's core — moqi only knows how to draw rows and
+raise a masked prompt. The panel lists the API key and the four gates with
+their live state; `enter` toggles a gate, the change applies immediately, and it
+persists to `$DSH_HOME/jev-loop.json`.
 
 The **API key** row opens a masked prompt: the draft is never rendered and
 never touches the composer, transcript, or shell history. The value is written
 to the Harness credential store (`ctx.credentials`, ref `TYPESAFE_API_KEY`) and
 the plugin picks it up on the next judgment — no restart. The row shows whether
 a key is live and where it came from (`config`, `credential:file`,
-`env:TYPESAFE_APIKEY`), never the value. `/jevloop key` re-prompts and
-`/jevloop key clear` forgets it.
+`env:TYPESAFE_APIKEY`), never the value. A **Clear API key** row appears once one
+is set.
 
 Key resolution order: explicit `apiKey` config, then the credential store, then
 `TYPESAFE_API_KEY` / `TYPESAFE_APIKEY` in the environment. The gates are

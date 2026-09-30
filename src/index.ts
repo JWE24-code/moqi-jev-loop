@@ -74,6 +74,44 @@ export interface JevLoopService {
   clearApiKey(): Promise<{ ok: boolean; error?: string }>
 }
 
+/**
+ * The slice of moqi's `tuiHost` seam this plugin contributes to.
+ *
+ * Structural on purpose: the plugin stays buildable and loadable without moqi,
+ * and registers its panel only when the service is actually present.
+ */
+interface TuiPanelRow {
+  id: string
+  title: string
+  subtitle: string
+  active?: boolean
+}
+
+/** A masked prompt the host raises on the panel's behalf. */
+interface TuiPanelSecret {
+  kind: 'secret'
+  message: string
+  placeholder?: string
+  submit: (value: string) => void | Promise<void>
+}
+
+/** What activating a panel row produced. */
+type TuiPanelResult = void | TuiPanelSecret
+
+/** A command panel contributed to the host. */
+interface TuiPanel {
+  name: string
+  title?: string
+  description: string
+  rows(): TuiPanelRow[]
+  activate(id: string): TuiPanelResult | Promise<TuiPanelResult>
+}
+
+/** The host service, when moqi is mounted. */
+interface TuiHostLike {
+  registerPanel(panel: TuiPanel): (() => void) | undefined
+}
+
 /** Plugin config, resolved from the bundle patch or a profile layer. */
 export interface Config {
   /** Literal key; prefer `apiKeyEnv` so no secret lives in a config file. */
@@ -801,6 +839,77 @@ export function apply(ctx: Context, config: Config): void {
       cache: result.cache,
       latencyMs: result.latencyMs,
       usage: result.usage,
+    })
+  })
+
+  // Contribute the control panel to moqi when this profile mounts it. The
+  // injection is optional: without `tuiHost` (a headless or non-moqi profile)
+  // the gates above run exactly the same, just with no panel.
+  const injectable = ctx as unknown as {
+    inject(deps: string[], callback: (ctx: Context) => void): unknown
+  }
+  // The credential store may be provided after this plugin mounts, so resolve
+  // again once it exists — and let a stored key win over a bare env fallback
+  // that was the best answer a moment ago.
+  injectable.inject(['credentials'], () => {
+    if (client === undefined || keyStatus.source.startsWith('env:')) {
+      client = undefined
+      void ensureClient()
+    }
+  })
+  injectable.inject(['tuiHost'], (uiCtx) => {
+    const host = uiCtx.get('tuiHost') as TuiHostLike | undefined
+    if (host === undefined) return
+    host.registerPanel({
+      name: 'JevLoop',
+      title: 'Jev Loop',
+      description: 'Jev gates and API key (dsh-jev-loop)',
+      rows: (): TuiPanelRow[] => {
+        const key: TuiPanelRow = {
+          id: 'key',
+          title: 'API key',
+          subtitle: service.hasApiKey()
+            ? `set · ${service.keySource()} · enter to replace`
+            : 'not set · enter to paste the TypeSafe key',
+          active: service.hasApiKey(),
+        }
+        const gates: TuiPanelRow[] = service.gates().map((gate) => ({
+          id: gate.name,
+          title: gate.label,
+          subtitle: `${gate.enabled ? 'on' : 'off'} · ${gate.mode} · ${gate.description}`,
+          active: gate.enabled,
+        }))
+        const clear: TuiPanelRow[] = service.hasApiKey()
+          ? [
+              {
+                id: 'key-clear',
+                title: 'Clear API key',
+                subtitle: 'remove the stored key',
+                active: false,
+              },
+            ]
+          : []
+        return [key, ...clear, ...gates]
+      },
+      activate: async (id): Promise<TuiPanelResult> => {
+        if (id === 'key') {
+          return {
+            kind: 'secret',
+            message: 'Paste the TypeSafe API key — stored in the Harness credential store',
+            placeholder: 'TYPESAFE_APIKEY',
+            submit: async (value: string) => {
+              const result = await service.setApiKey(value)
+              if (!result.ok) throw new Error(result.error ?? 'could not save the key')
+            },
+          }
+        }
+        if (id === 'key-clear') {
+          await service.clearApiKey()
+          return undefined
+        }
+        service.toggle(id as GateName)
+        return undefined
+      },
     })
   })
 
