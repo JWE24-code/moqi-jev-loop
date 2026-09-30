@@ -1,8 +1,8 @@
 {
-  "name": "dsh-jev-loop",
+  "name": "moqi-jev-loop",
   "version": "0.1.0",
   "private": true,
-  "description": "Jev (TypeSafe System One) judgments at the DeepSeek Harness agent-loop gates: a completion check before a turn closes and a hazard gate before a tool call runs.",
+  "description": "Jev (TypeSafe System One) gates and a /JevLoop control panel for the DeepSeek Harness agent loop, shipped as a moqi plugin.",
   "type": "module",
   "license": "MIT",
   "main": "lib/index.js",

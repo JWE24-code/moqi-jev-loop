@@ -1,4 +1,4 @@
-# dsh-jev-loop
+# moqi-jev-loop
 
 Jev (TypeSafe System One) judgments at the DeepSeek Harness agent-loop gates.
 A native Cordis plugin: no model cooperation, no tool call, no shell hook.
@@ -26,7 +26,7 @@ headless), and `/JevLoop` joins the command palette with the plugin. Nothing
 about the panel lives in moqi's core — moqi only knows how to draw rows and
 raise a masked prompt. The panel lists the API key and the four gates with
 their live state; `enter` toggles a gate, the change applies immediately, and it
-persists to `$DSH_HOME/jev-loop.json`.
+persists to `$DSH_HOME/moqi-jev-loop.json`.
 
 The **API key** row opens a masked prompt: the draft is never rendered and
 never touches the composer, transcript, or shell history. The value is written
@@ -48,12 +48,12 @@ registered even with no key, so setting one activates them immediately.
   `turnStoppingMaxMessages` messages.
 - Answers are cached by a SHA-256 of the exact request body, so an unchanged
   judgment is free.
-- Every judgment is appended to `$DSH_HOME/jev-loop.jsonl` with probabilities,
+- Every judgment is appended to `$DSH_HOME/moqi-jev-loop.jsonl` with probabilities,
   cache hit/miss, latency, and token usage.
 
 ## Config
 
-Set on the `dsh-jev-loop` row in a bundle patch (see `cordis.patch.yml`), or in
+Set on the `moqi-jev-loop` row in a bundle patch (see `cordis.patch.yml`), or in
 a profile's own patch layer.
 
 | Field | Default | Meaning |
@@ -66,8 +66,8 @@ a profile's own patch layer.
 | `maxRetries` | `2` | retries on 429/529, network errors, timeouts |
 | `maxStateChars` | `24000` | hard cap on state sent to Jev |
 | `cacheEntries` | `500` | in-memory cache entries |
-| `auditPath` | `$DSH_HOME/jev-loop.jsonl` | JSONL audit trail |
-| `statePath` | `$DSH_HOME/jev-loop.json` | persisted gate toggles |
+| `auditPath` | `$DSH_HOME/moqi-jev-loop.jsonl` | JSONL audit trail |
+| `statePath` | `$DSH_HOME/moqi-jev-loop.json` | persisted gate toggles |
 | `preStepEnabled` | `false` | judge the request before the first step |
 | `preStepThreshold` | `0.7` | clarification probability that injects a question |
 | `preExecuteEnabled` | `true` | judge tool calls before dispatch |
@@ -98,7 +98,7 @@ npm run install-profile -- jev-dev
 TYPESAFE_APIKEY=… dsh --profile jev-dev
 ```
 
-Inside the app: `/jevloop` toggles the gates, and `~/.dsh/jev-loop.jsonl`
+Inside the app: `/jevloop` toggles the gates, and `~/.dsh/moqi-jev-loop.jsonl`
 records every judgment. `install-profile` links the moqi TUI from a sibling
 `../moqi` checkout by default; override with `MOQI_ROOT`.
 

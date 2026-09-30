@@ -18,7 +18,7 @@
  *
  * Each gate can be toggled at runtime through the `jevLoop` service this
  * plugin provides; moqi's `/JevLoop` panel is one consumer. The toggle state
- * persists to `$DSH_HOME/jev-loop.json`.
+ * persists to `$DSH_HOME/moqi-jev-loop.json`.
  * @module
  */
 
@@ -38,7 +38,7 @@ import { JevClient, type Answer, type JevClientStats, type Question } from './je
 import { lastUserRequest, renderContent, renderMessages } from './render.ts'
 
 /** Stable Cordis plugin name. */
-export const name = 'jev-loop'
+export const name = 'moqi-jev-loop'
 
 /** No services are required: the gates are pure event listeners. */
 export const inject: string[] = []
@@ -130,9 +130,9 @@ export interface Config {
   maxStateChars?: number
   /** In-memory cache entries, keyed by the exact request body. Default 500. */
   cacheEntries?: number
-  /** JSONL audit trail of every judgment. Default `$DSH_HOME/jev-loop.jsonl`. */
+  /** JSONL audit trail of every judgment. Default `$DSH_HOME/moqi-jev-loop.jsonl`. */
   auditPath?: string
-  /** Where the runtime gate toggles persist. Default `$DSH_HOME/jev-loop.json`. */
+  /** Where the runtime gate toggles persist. Default `$DSH_HOME/moqi-jev-loop.json`. */
   statePath?: string
   /** Judge the request before the first step. Default false. */
   preStepEnabled?: boolean
@@ -335,8 +335,8 @@ function resolveSettings(config: Config): Settings {
     maxRetries: config.maxRetries ?? 2,
     maxStateChars: config.maxStateChars ?? 24000,
     cacheEntries: config.cacheEntries ?? 500,
-    auditPath: config.auditPath ?? join(dshHome, 'jev-loop.jsonl'),
-    statePath: config.statePath ?? join(dshHome, 'jev-loop.json'),
+    auditPath: config.auditPath ?? join(dshHome, 'moqi-jev-loop.jsonl'),
+    statePath: config.statePath ?? join(dshHome, 'moqi-jev-loop.json'),
     preStepThreshold: config.preStepThreshold ?? 0.7,
     preExecuteMode,
     preExecuteThreshold: config.preExecuteThreshold ?? 0.7,
@@ -569,7 +569,7 @@ export function apply(ctx: Context, config: Config): void {
       if (found === undefined) return undefined
       found.enabled = !found.enabled
       saveOverrides(settings.statePath, gates)
-      ctx.logger.info(`[jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`)
+      ctx.logger.info(`[moqi-jev-loop] ${gate} ${found.enabled ? 'enabled' : 'disabled'}`)
       return { ...found }
     },
     setEnabled: (gate, enabled) => {
@@ -632,7 +632,7 @@ export function apply(ctx: Context, config: Config): void {
   void ensureClient().then((active) => {
     if (active === undefined) {
       ctx.logger.warn(
-        '[jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY',
+        '[moqi-jev-loop] no TypeSafe API key yet; set one from moqi /JevLoop or TYPESAFE_APIKEY',
       )
     }
   })
@@ -726,7 +726,7 @@ export function apply(ctx: Context, config: Config): void {
     const reason = `Jev flagged this call (${flagged
       .map((hazard) => `${hazard.name}=${hazard.p.toFixed(2)}`)
       .join(', ')})`
-    ctx.logger.warn(`[jev-loop] ${reason}: ${exec.name}`)
+    ctx.logger.warn(`[moqi-jev-loop] ${reason}: ${exec.name}`)
     return settings.preExecuteMode === 'deny'
       ? { kind: 'deny', reason }
       : { kind: 'ask', reason }
@@ -776,7 +776,7 @@ export function apply(ctx: Context, config: Config): void {
     })
     if (!block || probability === undefined) return next()
     ctx.logger.warn(
-      `[jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`,
+      `[moqi-jev-loop] result for ${exec.name} looked wrong (p=${probability.toFixed(2)}); blocked`,
     )
     return {
       kind: 'block',
@@ -825,7 +825,7 @@ export function apply(ctx: Context, config: Config): void {
         }),
       )
       ctx.logger.warn(
-        `[jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`,
+        `[moqi-jev-loop] turn ${String(turn)} looked unfinished (p=${probability.toFixed(2)}); nudged (${String(used + 1)}/${String(settings.turnStoppingMaxSteers)})`,
       )
     }
 
@@ -863,7 +863,7 @@ export function apply(ctx: Context, config: Config): void {
     host.registerPanel({
       name: 'JevLoop',
       title: 'Jev Loop',
-      description: 'Jev gates and API key (dsh-jev-loop)',
+      description: 'Jev gates and API key (moqi-jev-loop)',
       rows: (): TuiPanelRow[] => {
         const key: TuiPanelRow = {
           id: 'key',
@@ -914,7 +914,7 @@ export function apply(ctx: Context, config: Config): void {
   })
 
   ctx.logger.info(
-    `[jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
+    `[moqi-jev-loop] mounted (model=${settings.model}, gates=${[...gates.values()]
       .filter((gate) => gate.enabled)
       .map((gate) => gate.name)
       .join(',') || 'none'})`,
