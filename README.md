@@ -1,48 +1,30 @@
 # moqi-jev-loop
 
-Jev (TypeSafe System One) judgments at the DeepSeek Harness agent-loop gates,
-in two releasable pieces:
+The `/JevLoop` control panel for [moqi](https://www.npmjs.com/package/moqi-tui),
+on top of [`dsh-jev-loop`](https://www.npmjs.com/package/dsh-jev-loop).
 
-| Package | For | Contains |
-|---|---|---|
-| [`dsh-jev-loop`](packages/dsh-jev-loop) | any DeepSeek Harness composition | the four gates, the TypeSafe client, the `jevLoop` service, key handling, audit — no UI dependency |
-| [`moqi-jev-loop`](packages/moqi-jev-loop) | moqi | the `/JevLoop` control panel, rendered through moqi's `tuiHost` seam |
+It is a thin adapter: moqi brings the `tuiHost` seam, `dsh-jev-loop` brings the
+`jevLoop` service, and this package turns that service into rows and actions.
+It judges nothing itself and never applies where either service is absent.
 
-Mount the core alone for a headless or web Harness; add the adapter (or the
-whole `moqi-jev-loop` profile below) when moqi is the host. The adapter injects
-both `jevLoop` and `tuiHost`, so it never applies where either is absent.
-
-The module boundaries, the seams, and the generated whiteboards are documented
-in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Published to npm as
+[`moqi-jev-loop`](https://www.npmjs.com/package/moqi-jev-loop). This repository
+carries the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic — the
+whole of the [dshfind](https://dshfind.com) listing mechanism: the marketplace
+indexes public repositories by that topic and syncs daily, so there is no
+listing step per release.
 
 ## Install
 
 ```bash
-dsh plugin --profile <profile> add dsh-jev-loop    # the gates
-dsh plugin --profile <profile> add moqi-jev-loop   # + the /JevLoop panel (needs moqi)
+dsh plugin --profile <profile> add dsh-jev-loop
+dsh plugin --profile <profile> add moqi-jev-loop
 ```
 
-Both are published to npm as [`dsh-jev-loop`](https://www.npmjs.com/package/dsh-jev-loop)
-and [`moqi-jev-loop`](https://www.npmjs.com/package/moqi-jev-loop). This
-repository carries the [`dsh-plugin`](https://github.com/topics/dsh-plugin)
-topic, which is the whole of the [dshfind](https://dshfind.com) listing
-mechanism: the marketplace indexes public repositories by that topic and syncs
-daily, so there is no listing step per release.
+Both bundles are needed — the core mounts the gates, this one mounts the panel.
+With moqi running, `/JevLoop` then joins the command palette.
 
-## The gates (core)
-
-| Gate | Event | What Jev judges | Decision |
-|---|---|---|---|
-| Pre-step | `agent/pre-step` | is the request underspecified? | inject an "ask before guessing" instruction |
-| Pre-execute | `tools/pre-execute` | destructive · exfiltration · off-task | `log` / `ask` / `deny` |
-| Post-execute | `tools/post-execute` | did a successful call silently miss? | `log` / `block` with corrective feedback |
-| Turn-stopping | `agent/turn-stopping` | "is the request actually done?" | `nudge` the turn onward, or pass |
-
-All four are automatic. Jev supplies a calibrated probability; the core owns the
-thresholds and decisions, and every failure — no key, timeout, 429, bad JSON —
-**fails open**, so a judgment service that is down never blocks the loop.
-
-## The `/JevLoop` panel (moqi adapter)
+## The panel
 
 The adapter registers a `tuiHost` panel, so `/JevLoop` joins moqi's command
 palette and nothing about it lives in moqi's core: moqi only knows how to draw
@@ -62,97 +44,37 @@ Key resolution order: explicit `apiKey` config, then the credential store, then
 `TYPESAFE_API_KEY` / `TYPESAFE_APIKEY` in the environment. The gates are
 registered even with no key, so setting one activates them immediately.
 
-## Cost envelope (core)
-
-- One `POST /v1/systemone` per judgment; pre-execute asks its three hazards in a
-  single call.
-- State is capped (`maxStateChars`); the transcript gates only send the last
-  `turnStoppingMaxMessages` messages.
-- Answers are cached by a SHA-256 of the exact request body, so an unchanged
-  judgment is free.
-- Every judgment is appended to `$DSH_HOME/jev-loop.jsonl` with probabilities,
-  cache hit/miss, latency, and token usage.
-
-## Config (core)
-
-Set on the `dsh-jev-loop` row in a bundle patch (see its `cordis.patch.yml`), or
-in a profile's own patch layer.
-
-| Field | Default | Meaning |
-|---|---|---|
-| `apiKey` | — | literal key; prefer `apiKeyEnv` so no secret is in a config file |
-| `apiKeyEnv` | `TYPESAFE_API_KEY` | env var read for the key; `TYPESAFE_APIKEY` is also read |
-| `model` | `jev-latest` | TypeSafe model alias |
-| `baseUrl` | `https://api.typesafe.ai/v1/systemone` | evaluation endpoint |
-| `timeoutMs` | `3000` | per-request timeout |
-| `maxRetries` | `2` | retries on 429/529, network errors, timeouts |
-| `maxStateChars` | `24000` | hard cap on state sent to Jev |
-| `cacheEntries` | `500` | in-memory cache entries |
-| `auditPath` | `$DSH_HOME/jev-loop.jsonl` | JSONL audit trail |
-| `statePath` | `$DSH_HOME/jev-loop.json` | persisted gate toggles |
-| `preStepEnabled` | `false` | judge the request before the first step |
-| `preStepThreshold` | `0.7` | clarification probability that injects a question |
-| `preExecuteEnabled` | `true` | judge tool calls before dispatch |
-| `preExecuteMode` | `log` | `log` observes, `ask` requests approval, `deny` refuses |
-| `preExecuteThreshold` | `0.7` | hazard probability that flags a call |
-| `preExecuteSkip` | `[]` | tool names to ignore |
-| `postExecuteEnabled` | `true` | check a successful tool result |
-| `postExecuteMode` | `log` | `log` observes, `block` turns feedback into an error |
-| `postExecuteThreshold` | `0.7` | miss probability that blocks a result |
-| `turnStoppingEnabled` | `true` | check the turn before it closes |
-| `turnStoppingThreshold` | `0.5` | completion probability below which to nudge |
-| `turnStoppingMaxSteers` | `2` | nudges per turn, so a wrong judgment cannot loop |
-| `turnStoppingMaxMessages` | `14` | transcript messages fed to the completion judgment |
-
-The `*Enabled` values are defaults: a persisted `/JevLoop` toggle overrides them.
-
 ## Test it
 
 The throwaway profile composes `dsh-base`, the fixed moqi TUI checkout, the
-core, and the adapter:
+core, and this adapter:
 
 ```bash
-npm install            # workspaces: typescript + @types/node
+npm install            # typescript + @types/node + dsh-jev-loop
 npm run link-harness   # symlink the installed harness's @deepseek-ai packages
 npm run build
 npm run install-profile -- jev-dev
 TYPESAFE_APIKEY=… dsh --profile jev-dev
 ```
 
+`install-profile` links the moqi TUI from a sibling `../moqi` checkout by
+default (`MOQI_ROOT` overrides it) and the core from a sibling `../dsh-jev-loop`
+checkout when one is built (`JEV_LOOP_CORE_ROOT` overrides it), falling back to
+the published `dsh-jev-loop` on npm when it is not.
+
 Inside the app `/JevLoop` toggles the gates, and `~/.dsh/jev-loop.jsonl` records
-every judgment. `install-profile` links the moqi TUI from a sibling `../moqi`
-checkout by default; override with `MOQI_ROOT`.
-
-To exercise the Harness-only build, list just the core bundle in a profile:
-
-```yaml
-bundles: ['@deepseek-ai/dsh-base', 'dsh-jev-loop']
-```
+every judgment.
 
 ## Layout
 
 ```
-packages/dsh-jev-loop/    core: the feature, with no host dependency
-  src/gates.ts            the four judgments and their copy, as pure functions
-  src/keyring.ts          key resolution order, storing, probing, clearing
-  src/loop.ts             JevLoop: state assembly, per-turn budgets, audit, one method per gate
-  src/jev.ts              the TypeSafe client: a Judger port and its live adapter
-  src/render.ts           derived session messages -> plain text
-  src/index.ts            the Cordis adapter: config, event wiring, effects
-  tests/                  the modules above, driven directly
-packages/moqi-jev-loop/   adapter: the /JevLoop panel
-  src/panel.ts            rows and actions over the core's service
-  src/index.ts            the tuiHost seam
-scripts/                  harness linking and the throwaway profile installer
+src/panel.ts   rows and actions over the core's service
+src/index.ts   the tuiHost seam
+tests/         panel.ts driven with a fake service
+scripts/       harness linking and the throwaway profile installer
 ```
 
-## Tests
+## Docs
 
-```bash
-npm test   # gates, keyring, loop, panel — no Harness, no network
-```
-
-The domain modules take their dependencies as ports (a `Judger`, a credential
-store, a `Keyring`), so the tests drive the same interfaces production uses and
-never need Cordis or TypeSafe. The Cordis and moqi files are the only ones that
-must cross a real seam, and they stay thin.
+The module boundary and the generated whiteboard are documented in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
