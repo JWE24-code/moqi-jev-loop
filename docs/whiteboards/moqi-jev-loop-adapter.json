@@ -1,0 +1,323 @@
+{
+  "root": "packages/moqi-jev-loop/src",
+  "scannedAt": "2026-09-30T20:41:36.639Z",
+  "groupBy": "file",
+  "stats": {
+    "functions": 6,
+    "shownFunctions": 6,
+    "classes": 0,
+    "modules": 2,
+    "edges": 2,
+    "files": 2,
+    "languages": {
+      "typescript": 2
+    },
+    "unresolvedCalls": 10,
+    "topUnresolved": [
+      [
+        "hasApiKey",
+        3
+      ],
+      [
+        "get",
+        2
+      ],
+      [
+        "registerPanel",
+        1
+      ],
+      [
+        "keySource",
+        1
+      ],
+      [
+        "map",
+        1
+      ],
+      [
+        "gates",
+        1
+      ],
+      [
+        "setApiKey",
+        1
+      ],
+      [
+        "clearApiKey",
+        1
+      ],
+      [
+        "toggle",
+        1
+      ],
+      [
+        "Error",
+        1
+      ]
+    ],
+    "errors": 0,
+    "notes": []
+  },
+  "modules": [
+    {
+      "id": "index.ts",
+      "name": "index.ts",
+      "functions": [
+        "index.ts#apply",
+        "index.ts#rows",
+        "index.ts#activate"
+      ],
+      "layerCounts": {
+        "entry": 3
+      },
+      "classes": [],
+      "title": "index.ts",
+      "note": "",
+      "layer": "entry"
+    },
+    {
+      "id": "panel.ts",
+      "name": "panel.ts",
+      "functions": [
+        "panel.ts#panelRows",
+        "panel.ts#panelActivate",
+        "panel.ts#submit"
+      ],
+      "layerCounts": {
+        "domain": 3
+      },
+      "classes": [],
+      "title": "panel.ts",
+      "note": "",
+      "layer": "domain"
+    }
+  ],
+  "nodes": {
+    "index.ts#apply": {
+      "id": "index.ts#apply",
+      "name": "apply",
+      "qualifier": null,
+      "qualified": "apply",
+      "kind": "function",
+      "lang": "typescript",
+      "file": "index.ts",
+      "line": 35,
+      "endLine": 47,
+      "signature": "function apply(ctx:Context):void",
+      "params": "(ctx:Context)",
+      "doc": "Register the panel with moqi; the core owns every decision behind it.",
+      "summary": "Register the panel with moqi; the core owns every decision behind it.",
+      "exported": true,
+      "async": false,
+      "generator": false,
+      "loc": 12,
+      "chars": 405,
+      "isTest": false,
+      "module": "index.ts",
+      "layer": "entry",
+      "calls": [],
+      "calledBy": [],
+      "inDegree": 0,
+      "outDegree": 0,
+      "why": "Register the panel with moqi; the core owns every decision behind it.",
+      "roleNote": "The tuiHost seam; injects `jevLoop` and `tuiHost`, then hands `panel.ts` to the host.",
+      "role": "Entry point",
+      "title": "apply",
+      "hidden": false,
+      "importance": null
+    },
+    "index.ts#rows": {
+      "id": "index.ts#rows",
+      "name": "rows",
+      "qualifier": null,
+      "qualified": "rows",
+      "kind": "arrow",
+      "lang": "typescript",
+      "file": "index.ts",
+      "line": 44,
+      "endLine": 44,
+      "signature": "rows()",
+      "params": "()",
+      "doc": "",
+      "summary": "",
+      "exported": false,
+      "async": false,
+      "generator": false,
+      "loc": 1,
+      "chars": 18,
+      "isTest": false,
+      "module": "index.ts",
+      "layer": "entry",
+      "calls": [
+        "panel.ts#panelRows"
+      ],
+      "calledBy": [],
+      "inDegree": 0,
+      "outDegree": 1,
+      "why": "",
+      "roleNote": "",
+      "role": "Entry point",
+      "title": "rows",
+      "hidden": false,
+      "importance": null
+    },
+    "index.ts#activate": {
+      "id": "index.ts#activate",
+      "name": "activate",
+      "qualifier": null,
+      "qualified": "activate",
+      "kind": "arrow",
+      "lang": "typescript",
+      "file": "index.ts",
+      "line": 45,
+      "endLine": 45,
+      "signature": "activate(id)",
+      "params": "(id)",
+      "doc": "",
+      "summary": "",
+      "exported": false,
+      "async": false,
+      "generator": false,
+      "loc": 1,
+      "chars": 26,
+      "isTest": false,
+      "module": "index.ts",
+      "layer": "entry",
+      "calls": [
+        "panel.ts#panelActivate"
+      ],
+      "calledBy": [],
+      "inDegree": 0,
+      "outDegree": 1,
+      "why": "",
+      "roleNote": "",
+      "role": "Entry point",
+      "title": "activate",
+      "hidden": false,
+      "importance": null
+    },
+    "panel.ts#panelRows": {
+      "id": "panel.ts#panelRows",
+      "name": "panelRows",
+      "qualifier": null,
+      "qualified": "panelRows",
+      "kind": "function",
+      "lang": "typescript",
+      "file": "panel.ts",
+      "line": 64,
+      "endLine": 83,
+      "signature": "function panelRows(service:JevLoopService):TuiPanelRow[]",
+      "params": "(service:JevLoopService)",
+      "doc": "The rows to draw right now: the key, then the gates.",
+      "summary": "The rows to draw right now: the key, then the gates.",
+      "exported": true,
+      "async": false,
+      "generator": false,
+      "loc": 19,
+      "chars": 671,
+      "isTest": false,
+      "module": "panel.ts",
+      "layer": "domain",
+      "calls": [],
+      "calledBy": [
+        "index.ts#rows"
+      ],
+      "inDegree": 1,
+      "outDegree": 0,
+      "why": "The rows to draw right now: the key, then the gates.",
+      "roleNote": "Pure: the API-key row, an optional clear row, then one row per gate.",
+      "role": "Domain / core",
+      "title": "panelRows",
+      "hidden": false,
+      "importance": null
+    },
+    "panel.ts#panelActivate": {
+      "id": "panel.ts#panelActivate",
+      "name": "panelActivate",
+      "qualifier": null,
+      "qualified": "panelActivate",
+      "kind": "function",
+      "lang": "typescript",
+      "file": "panel.ts",
+      "line": 86,
+      "endLine": 107,
+      "signature": "async function panelActivate(service:JevLoopService,id:string,):Promise<TuiPanelResult>",
+      "params": "(service:JevLoopService,id:string,)",
+      "doc": "What the row chosen with enter does.",
+      "summary": "What the row chosen with enter does.",
+      "exported": true,
+      "async": true,
+      "generator": false,
+      "loc": 21,
+      "chars": 505,
+      "isTest": false,
+      "module": "panel.ts",
+      "layer": "domain",
+      "calls": [],
+      "calledBy": [
+        "index.ts#activate"
+      ],
+      "inDegree": 1,
+      "outDegree": 0,
+      "why": "What the row chosen with enter does.",
+      "roleNote": "Pure: a gate row toggles; the key row returns a masked-secret request.",
+      "role": "Domain / core",
+      "title": "panelActivate",
+      "hidden": false,
+      "importance": null
+    },
+    "panel.ts#submit": {
+      "id": "panel.ts#submit",
+      "name": "submit",
+      "qualifier": null,
+      "qualified": "submit",
+      "kind": "arrow",
+      "lang": "typescript",
+      "file": "panel.ts",
+      "line": 95,
+      "endLine": 98,
+      "signature": "submitasync(value:string)",
+      "params": "(value:string)",
+      "doc": "",
+      "summary": "",
+      "exported": false,
+      "async": true,
+      "generator": false,
+      "loc": 3,
+      "chars": 145,
+      "isTest": false,
+      "module": "panel.ts",
+      "layer": "domain",
+      "calls": [],
+      "calledBy": [],
+      "inDegree": 0,
+      "outDegree": 0,
+      "why": "",
+      "roleNote": "",
+      "role": "Domain / core",
+      "title": "submit",
+      "hidden": false,
+      "importance": null
+    }
+  },
+  "classes": {},
+  "edges": [
+    {
+      "from": "index.ts#rows",
+      "to": "panel.ts#panelRows",
+      "kind": "call",
+      "line": 44
+    },
+    {
+      "from": "index.ts#activate",
+      "to": "panel.ts#panelActivate",
+      "kind": "call",
+      "line": 45
+    }
+  ],
+  "annotationMeta": {
+    "title": "moqi-jev-loop — the /JevLoop panel",
+    "subtitle": "A thin moqi adapter over the core's jevLoop service: rows and actions, no judgments."
+  },
+  "scanErrors": []
+}

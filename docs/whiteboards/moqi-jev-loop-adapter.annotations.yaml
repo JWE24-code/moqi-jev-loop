@@ -1,0 +1,17 @@
+# Purpose notes for the moqi-jev-loop code map.
+#
+# The adapter is small on purpose: moqi brings the host seam, dsh-jev-loop
+# brings the service, and this package only turns the service into rows and
+# actions.
+
+meta:
+  title: "moqi-jev-loop — the /JevLoop panel"
+  subtitle: "A thin moqi adapter over the core's jevLoop service: rows and actions, no judgments."
+
+functions:
+  index.ts#apply:
+    roleNote: "The tuiHost seam; injects `jevLoop` and `tuiHost`, then hands `panel.ts` to the host."
+  panel.ts#panelRows:
+    roleNote: "Pure: the API-key row, an optional clear row, then one row per gate."
+  panel.ts#panelActivate:
+    roleNote: "Pure: a gate row toggles; the key row returns a masked-secret request."

@@ -12,6 +12,9 @@ Mount the core alone for a headless or web Harness; add the adapter (or the
 whole `moqi-jev-loop` profile below) when moqi is the host. The adapter injects
 both `jevLoop` and `tuiHost`, so it never applies where either is absent.
 
+The module boundaries, the seams, and the generated whiteboards are documented
+in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## The gates (core)
 
 | Gate | Event | What Jev judges | Decision |

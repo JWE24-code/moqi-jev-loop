@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1253" height="830" viewBox="-48 -256 1253 830">
+<title>packages/moqi-jev-loop/src</title>
+<rect x="-48" y="-256" width="1253" height="830" fill="#ffffff"/>
+<rect x="40" y="50" width="1086" height="205" rx="18" fill="#f8f9fa" stroke="#e67700" stroke-width="1" stroke-dasharray="4 4" opacity="0.55"/>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="16" fill="#7a3d00" text-anchor="start"><tspan x="60" y="75.12">index.ts</tspan></text>
+<rect x="40" y="321" width="1086" height="205" rx="18" fill="#f8f9fa" stroke="#1971c2" stroke-width="1" stroke-dasharray="4 4" opacity="0.55"/>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="16" fill="#0b3d63" text-anchor="start"><tspan x="60" y="346.12">panel.ts</tspan></text>
+<rect x="418" y="139" width="330" height="96" rx="18" fill="#fff3bf" stroke="#e67700" stroke-width="1.5"/>
+<rect x="60" y="90" width="330" height="145" rx="18" fill="#fff3bf" stroke="#e67700" stroke-width="1.5"/>
+<rect x="776" y="139" width="330" height="96" rx="18" fill="#fff3bf" stroke="#e67700" stroke-width="1.5"/>
+<rect x="418" y="361" width="330" height="145" rx="18" fill="#d0ebff" stroke="#1971c2" stroke-width="1.5"/>
+<rect x="776" y="361" width="330" height="145" rx="18" fill="#d0ebff" stroke="#1971c2" stroke-width="1.5"/>
+<rect x="60" y="385.5" width="330" height="96" rx="18" fill="#d0ebff" stroke="#1971c2" stroke-width="1.5"/>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#7a3d00" text-anchor="start" font-weight="600"><tspan x="434" y="166.94">activate</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="434" y="191.32">activate(id)</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="434" y="216.27">Entry point · →1</tspan></text>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#7a3d00" text-anchor="start" font-weight="600"><tspan x="76" y="117.94">apply</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="76" y="142.32">function apply(ctx:Context):void</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6c757d" text-anchor="start"><tspan x="76" y="159.2">why: Register the panel with moqi;</tspan><tspan x="76" y="176.08">the core owns every decision behind</tspan><tspan x="76" y="192.95">it.</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="76" y="216.27">Entry point · exported</tspan></text>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#7a3d00" text-anchor="start" font-weight="600"><tspan x="792" y="166.94">rows</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="792" y="191.32">rows()</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="792" y="216.27">Entry point · →1</tspan></text>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#0b3d63" text-anchor="start" font-weight="600"><tspan x="434" y="388.94">panelActivate</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="434" y="413.32">async function</tspan><tspan x="434" y="430.2">panelActivate(service:JevLoopService,id:st</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6c757d" text-anchor="start"><tspan x="434" y="447.07">why: What the row chosen with enter</tspan><tspan x="434" y="463.95">does.</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="434" y="487.27">Domain / core · async · exported · ←1</tspan></text>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#0b3d63" text-anchor="start" font-weight="600"><tspan x="792" y="388.94">panelRows</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="792" y="413.32">function</tspan><tspan x="792" y="430.2">panelRows(service:JevLoopService):TuiPanel</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6c757d" text-anchor="start"><tspan x="792" y="447.07">why: The rows to draw right now: the</tspan><tspan x="792" y="463.95">key, then the gates.</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="792" y="487.27">Domain / core · exported · ←1</tspan></text>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="17" fill="#0b3d63" text-anchor="start" font-weight="600"><tspan x="76" y="413.44">submit</tspan></text>
+<text font-family="DejaVu Sans Mono, Consolas, Menlo, monospace" font-size="13.5" fill="#343a40" text-anchor="start"><tspan x="76" y="437.82">submitasync(value:string)</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="76" y="462.77">Domain / core · async</tspan></text>
+<path d="M941,235 L941,298 L941,298 L941,361" fill="none" stroke="#495057" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity="0.9" marker-end="none"/><polygon points="941,361 937.53,353.79 944.47,353.79" fill="#495057"/>
+<path d="M583,235 L583,298 L583,298 L583,361" fill="none" stroke="#495057" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity="0.9" marker-end="none"/><polygon points="583,361 579.53,353.79 586.47,353.79" fill="#495057"/>
+<text font-family="DejaVu Sans, Verdana, Geneva, sans-serif" font-size="30" fill="#1e1e1e" text-anchor="start" font-weight="600"><tspan x="0" y="-183.4">moqi-jev-loop — the /JevLoop panel — function map</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="15" fill="#495057" text-anchor="start"><tspan x="2" y="-153.7">A thin moqi adapter over the core&apos;s jevLoop service: rows and actions, no judgments.</tspan></text>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="12.5" fill="#868e96" text-anchor="start"><tspan x="2" y="-131.75">How to read: each box is a function · arrows are calls (dark = crosses modules) · clusters are modules · &quot;why&quot; is the recorded purpose  ·  documented: 50%</tspan></text>
+<rect x="2" y="-112" width="15" height="15" rx="3.75" fill="#d0ebff" stroke="#1971c2" stroke-width="1.2"/>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="12.5" fill="#495057" text-anchor="start"><tspan x="22" y="-101.25">Domain / core</tspan></text>
+<rect x="137" y="-112" width="15" height="15" rx="3.75" fill="#fff3bf" stroke="#e67700" stroke-width="1.2"/>
+<text font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="12.5" fill="#495057" text-anchor="start"><tspan x="157" y="-101.25">Entry point</tspan></text>
+</svg>
