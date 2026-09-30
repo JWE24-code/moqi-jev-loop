@@ -15,6 +15,20 @@ both `jevLoop` and `tuiHost`, so it never applies where either is absent.
 The module boundaries, the seams, and the generated whiteboards are documented
 in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Install
+
+```bash
+dsh plugin --profile <profile> add dsh-jev-loop    # the gates
+dsh plugin --profile <profile> add moqi-jev-loop   # + the /JevLoop panel (needs moqi)
+```
+
+Both are published to npm as [`dsh-jev-loop`](https://www.npmjs.com/package/dsh-jev-loop)
+and [`moqi-jev-loop`](https://www.npmjs.com/package/moqi-jev-loop). This
+repository carries the [`dsh-plugin`](https://github.com/topics/dsh-plugin)
+topic, which is the whole of the [dshfind](https://dshfind.com) listing
+mechanism: the marketplace indexes public repositories by that topic and syncs
+daily, so there is no listing step per release.
+
 ## The gates (core)
 
 | Gate | Event | What Jev judges | Decision |

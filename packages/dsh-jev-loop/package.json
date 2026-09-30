@@ -1,10 +1,28 @@
 {
   "name": "dsh-jev-loop",
   "version": "0.1.0",
-  "private": true,
   "description": "Jev (TypeSafe System One) judgments at the DeepSeek Harness agent-loop gates: pre-step, pre-execute, post-execute, and turn-stopping. No UI dependencies; mount it in any Harness composition.",
   "type": "module",
   "license": "MIT",
+  "author": "JWE24-code <292770342+JWE24-code@users.noreply.github.com>",
+  "homepage": "https://github.com/JWE24-code/moqi-jev-loop#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JWE24-code/moqi-jev-loop.git",
+    "directory": "packages/dsh-jev-loop"
+  },
+  "bugs": "https://github.com/JWE24-code/moqi-jev-loop/issues",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "jev",
+    "typesafe",
+    "agent",
+    "guardrails",
+    "system-one"
+  ],
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "exports": {
@@ -28,7 +46,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --experimental-strip-types tests/gates-smoke.ts && node --experimental-strip-types tests/keyring-smoke.ts && node --experimental-strip-types tests/loop-smoke.ts"
+    "test": "node --experimental-strip-types tests/gates-smoke.ts && node --experimental-strip-types tests/keyring-smoke.ts && node --experimental-strip-types tests/loop-smoke.ts",
+    "prepublishOnly": "npm run build && npm run typecheck && npm test"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
