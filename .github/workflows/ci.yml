@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The panel smoke suite is dependency-free: it imports only `panel.ts`, whose
+  # `@deepseek-ai/*` reference (in `index.ts`) is type-only. So this job needs
+  # no Harness install.
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+
+  # Compiling the Harness-typed files does need `@deepseek-ai/*`, which
+  # `link-harness` makes resolvable from the checkout.
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install -g --ignore-scripts @deepseek-ai/dsh
+      - run: npm ci --ignore-scripts
+      - run: npm run link-harness
+      - run: npm run build
+      - run: npm run typecheck
