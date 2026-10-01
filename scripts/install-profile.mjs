@@ -20,7 +20,9 @@ import { join, resolve } from 'node:path'
 import { findDshRoot, linkHarnessPackages } from './harness-root.mjs'
 
 const profileName = process.argv[2] ?? 'jev-dev'
-if (profileName === '' || profileName.includes('/') || profileName.includes('\\')) {
+// A profile name becomes a directory under the profiles root, so it must be a
+// flat, dotless token: the allowlist is what keeps `..` and separators out.
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(profileName)) {
   console.error(`install-profile: invalid profile name ${JSON.stringify(profileName)}`)
   process.exit(1)
 }
@@ -124,7 +126,7 @@ console.log(`install-profile: done — run it with:  dsh --profile ${profileName
 /** Whether a command exists on PATH. */
 function hasCommand(name) {
   try {
-    execFileSync('sh', ['-c', `command -v ${name}`], { stdio: 'ignore' })
+    execFileSync('/bin/sh', ['-c', `command -v ${name}`], { stdio: 'ignore' })
     return true
   } catch {
     return false

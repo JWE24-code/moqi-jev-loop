@@ -43,18 +43,18 @@ function fake(): Fake {
     },
     hasApiKey: () => key,
     keySource: () => source,
-    setApiKey: async (value) => {
+    setApiKey: (value): Promise<{ ok: boolean; error?: string }> => {
       saved.push(value)
-      if (fail) return { ok: false, error: 'rejected' }
+      if (fail) return Promise.resolve({ ok: false, error: 'rejected' })
       key = true
       source = 'credential:file'
-      return { ok: true }
+      return Promise.resolve({ ok: true })
     },
-    clearApiKey: async () => {
+    clearApiKey: (): Promise<{ ok: boolean; error?: string }> => {
       clears += 1
       key = false
       source = 'none'
-      return { ok: true }
+      return Promise.resolve({ ok: true })
     },
   }
   return {
@@ -100,8 +100,8 @@ function fake(): Fake {
 {
   const harness = fake()
   const result = await panelActivate(harness.service, 'key')
-  check('the key row raises a masked prompt', result !== undefined && result.kind === 'secret')
-  if (result !== undefined && result.kind === 'secret') {
+  check('the key row raises a masked prompt', result?.kind === 'secret')
+  if (result?.kind === 'secret') {
     check('the prompt is the key instruction', result.message.includes('TypeSafe API key'))
     await result.submit('  pasted  ')
     check('submit passes the value through', harness.saved[0] === '  pasted  ')
@@ -112,7 +112,7 @@ function fake(): Fake {
   const harness = fake()
   harness.failSet(true)
   const result = await panelActivate(harness.service, 'key')
-  if (result !== undefined && result.kind === 'secret') {
+  if (result?.kind === 'secret') {
     let threw = false
     try {
       await result.submit('bad')
