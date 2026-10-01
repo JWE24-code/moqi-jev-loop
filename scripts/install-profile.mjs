@@ -16,7 +16,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join, resolve, sep } from 'node:path'
 import { findDshRoot, linkHarnessPackages } from './harness-root.mjs'
 
 const profileName = process.argv[2] ?? 'jev-dev'
@@ -53,7 +53,14 @@ const dshHome =
     ? resolve(fromEnvironment)
     : join(homedir(), '.dsh')
 
-const profileDir = join(dshHome, 'profiles', profileName)
+// Resolve inside the profiles root and prove the result never leaves it, so no
+// profile name can traverse out of the directory it is scoped to.
+const profilesRoot = resolve(dshHome, 'profiles')
+const profileDir = resolve(profilesRoot, profileName)
+if (!profileDir.startsWith(profilesRoot + sep)) {
+  console.error(`install-profile: invalid profile name ${JSON.stringify(profileName)}`)
+  process.exit(1)
+}
 mkdirSync(profileDir, { recursive: true })
 
 const manifest = {

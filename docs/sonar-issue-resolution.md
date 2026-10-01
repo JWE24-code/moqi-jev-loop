@@ -20,8 +20,10 @@ The `scripts/` findings are the same shared code fixed in `dsh-jev-loop`; the
 
 - **S8707 (path traversal).** `profileName` (argv) becomes a directory under
   `~/.dsh/profiles`, and the old guard only rejected `/` and `\`. A `..` name
-  therefore escaped one level. Replaced with a flat, dotless allowlist:
-  `/^[A-Za-z0-9][A-Za-z0-9_-]*$/`.
+  therefore escaped one level. It now gets both a flat, dotless allowlist
+  (`/^[A-Za-z0-9][A-Za-z0-9_-]*$/`) and — the sanitizer Sonar's taint analysis
+  accepts — a `resolve(profilesRoot, name)` followed by a
+  `startsWith(profilesRoot + sep)` containment check.
 - **S4036 (PATH).** The two `execFileSync('sh', …)` calls now use `/bin/sh`, so
   the interpreter is not located through the caller's PATH.
 - **S7503.** The fake `setApiKey`/`clearApiKey` drop `async` and return
