@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm install -g --ignore-scripts @deepseek-ai/dsh
+      - run: npm install -g --ignore-scripts @deepseek-ai/dsh # NOSONAR — the typecheck deliberately tracks the published latest Harness.
       - run: npm ci --ignore-scripts
       - run: npm run link-harness
       - run: npm run build
