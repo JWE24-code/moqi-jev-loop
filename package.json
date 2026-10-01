@@ -1,6 +1,6 @@
 {
   "name": "moqi-jev-loop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The /JevLoop control panel for moqi: gates and API key from dsh-jev-loop, rendered through moqi's tuiHost seam.",
   "type": "module",
   "license": "MIT",
