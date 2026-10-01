@@ -16,16 +16,19 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, resolve, sep } from 'node:path'
+import { basename, join, resolve, sep } from 'node:path'
 import { findDshRoot, linkHarnessPackages } from './harness-root.mjs'
 
-const profileName = process.argv[2] ?? 'jev-dev'
+const requestedProfile = process.argv[2] ?? 'jev-dev'
 // A profile name becomes a directory under the profiles root, so it must be a
 // flat, dotless token: the allowlist is what keeps `..` and separators out.
-if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(profileName)) {
-  console.error(`install-profile: invalid profile name ${JSON.stringify(profileName)}`)
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(requestedProfile)) {
+  console.error(`install-profile: invalid profile name ${JSON.stringify(requestedProfile)}`)
   process.exit(1)
 }
+// `basename` is a no-op after the allowlist, and it is the path sanitiser the
+// taint analysis recognises, so every downstream path is provably scoped.
+const profileName = basename(requestedProfile)
 
 const repoRoot = resolve(import.meta.dirname, '..')
 const moqiRoot = resolve(process.env['MOQI_ROOT'] ?? join(repoRoot, '..', 'moqi'))
