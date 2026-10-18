@@ -7,6 +7,9 @@ It is a thin adapter: moqi brings the `tuiHost` seam, `dsh-jev-loop` brings the
 `jevLoop` service, and this package turns that service into rows and actions.
 It judges nothing itself and never applies where either service is absent.
 
+**Compatibility:** works with moqi 0.4.x and 0.5.x (`npm run typecheck:moqi`
+checks the panel types against the installed `moqi-tui`).
+
 Published to npm as
 [`moqi-jev-loop`](https://www.npmjs.com/package/moqi-jev-loop). This repository
 carries the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic — the
@@ -70,7 +73,7 @@ every judgment.
 ```
 src/panel.ts   rows and actions over the core's service
 src/index.ts   the tuiHost seam
-tests/         panel.ts driven with a fake service
+tests/         panel.ts driven with a fake service; moqi type compatibility
 scripts/       harness linking and the throwaway profile installer
 ```
 

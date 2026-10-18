@@ -83,5 +83,6 @@ jobs:
         run: |
           npm run build
           npm run typecheck
+          npm run typecheck:moqi
           npm test
           npm pack --dry-run

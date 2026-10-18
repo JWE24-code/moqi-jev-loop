@@ -45,21 +45,23 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --experimental-strip-types tests/panel-smoke.ts",
-    "prepublishOnly": "npm run link-harness && npm run build && npm run typecheck && npm test",
+    "prepublishOnly": "npm run link-harness && npm run build && npm run typecheck && npm run typecheck:moqi && npm test",
     "link-harness": "node scripts/link-harness.mjs",
-    "install-profile": "node scripts/install-profile.mjs"
+    "install-profile": "node scripts/install-profile.mjs",
+    "typecheck:moqi": "tsc -p tsconfig.moqi-compat.json"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "dsh-jev-loop": "^0.1.1"
+    "dsh-jev-loop": "^0.1.2"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "moqi-tui": "^0.4.8 || ^0.5.0",
     "typescript": "^5.6.0"
   }
 }
