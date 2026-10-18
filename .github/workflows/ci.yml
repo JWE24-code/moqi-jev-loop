@@ -37,3 +37,6 @@ jobs:
       - run: npm run link-harness
       - run: npm run build
       - run: npm run typecheck
+      # The structural copy of moqi's panel types must still match the locked
+      # `moqi-tui` devDependency.
+      - run: npm run typecheck:moqi
