@@ -71,7 +71,8 @@ The core's `jevLoop` service is likewise described structurally
 
 Releases are cut from `main`:
 
-1. Bump `version` in `package.json` and `package-lock.json` in a
+1. Bump `version` in `package.json` and `package-lock.json`, and move the
+   `CHANGELOG.md` entries under a dated `[X.Y.Z]` heading, in a
    `Release X.Y.Z` commit.
 2. Publish a GitHub Release tagged `vX.Y.Z`.
 3. `.github/workflows/publish.yml` runs on the release: it checks the tag
