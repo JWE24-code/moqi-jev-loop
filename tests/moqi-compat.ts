@@ -25,8 +25,8 @@ import type {
 
 /** Compiles only when `A` and `B` are mutually assignable. */
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
-function same<A, B>(proof: Same<A, B>): void {
-  void proof
+function same<A, B>(proof: Same<A, B>): Same<A, B> {
+  return proof
 }
 
 same<TuiPanelRow, MoqiPanelRow>(true)
@@ -38,5 +38,4 @@ type RegisteredPanel = Parameters<TuiHostLike['registerPanel']>[0]
 same<RegisteredPanel, TuiPanel>(true)
 
 /** moqi's real host satisfies what `apply` asks of `ctx.get('tuiHost')`. */
-const asLike = (host: TuiHost): TuiHostLike => host
-void asLike
+export const asLike = (host: TuiHost): TuiHostLike => host
